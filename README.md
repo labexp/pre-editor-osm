@@ -15,7 +15,7 @@ Para temas de pruebas se pueden utilizar las [trazas de transporte público.](ht
 #### Requerimientos y ejecución
 Las siguientes instrucciones asumen que usted está dentro del directorio del proyecto ya clonado. A la hora de forkear el repositorio puede utilizar el siguiente comando para obtener los archivos via *https*.
 ```
-git clone <URL repositorio forkeado>
+$ git clone <URL repositorio forkeado>
 ```
 Este proyecto requiere `python3`. Asegúrese que esté instalado en su distribución de linux. 
 Si es la primera vez que lo utiliza, debe instalar además el sistema de gestión de paquetes `pip3` directo de la terminal.
@@ -33,7 +33,7 @@ $ python3 movilidad.py
 
 Licencia
 ---
-GNU
+GNU General Public License (GPL) v3.0
 
 ##### Autores:
 Jaime Gutierrez [**@elotrojames**](github.com/elotrojames)
