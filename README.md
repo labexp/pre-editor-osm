@@ -36,6 +36,6 @@ Licencia
 GNU General Public License (GPL) v3.0
 
 ##### Autores:
-Jaime Gutierrez [**@elotrojames**](github.com/jamescr)
+Jaime Gutierrez [**@jamescr**](https://github.com/jamescr)
 
-Wilhelm Carstens [**@wolam**](github.com/Wolam)
+Wilhelm Carstens [**@wolam**](https://github.com/Wolam)
