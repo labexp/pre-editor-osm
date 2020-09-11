@@ -23,7 +23,7 @@ def construir_mapa():
     mapa_folium.add_child(plugins.HeatMap(latitudes_longitudes, radius=8))
     return mapa_folium._repr_html_()
 
-# Parsear y obtener todos los gpx dados en un directorio de trazas
+# Parsear y obtener todos los gpx dados en un directorio de trazas deseado
 def transcribir_directorio(directorio_trazas="trazas-transporte-publico/bus_santabarbara-alajuela"):
     archivos_gpx = []
    # parsed = 0
