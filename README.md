@@ -22,7 +22,7 @@ Este proyecto requiere `Python3`. Asegúrese que esté instalado en su distribuc
 $ sudo apt install python3-pip
 ```
 
-Instalar los requerimientos necesarios para la ejecución del programa.
+Instalar los requerimientos necesarios para la ejecución del programa. Se recomienda utilizar un [entorno virtual](https://python-docs-es.readthedocs.io/es/3.8/library/venv.html), en este proyecto se utilizará el `.venv` como el nombre del entorno virtual.
 ```
 $ pip3 install -r requerimientos.txt
 ```
