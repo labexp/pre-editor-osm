@@ -1,7 +1,9 @@
-# Mapa actividad bici <img src="https://image.flaticon.com/icons/png/128/3163/3163394.png" width="25" height="25" />
+# Pre Editor OSM 
 
 ### Descripción     
-Este proyecto tiene como objetivo visualizar la movilidad en bicicleta en bicicleta en el cantón de Alajuela por medio de mapas de calor (*heatmaps*).
+Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existe en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa. 
+
+
 
 
 **Aspectos de implementación**
