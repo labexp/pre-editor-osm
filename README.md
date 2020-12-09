@@ -3,9 +3,9 @@
 ### Descripción     
 Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existe en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa. 
 
-**Aspectos de implementación**
+**Bibliotecas utilizadas**
 
-El proyecto se basa en el uso de la biblioteca `gpxpy` para la extracción de puntos.
+* [gpxpy](https://pypi.org/project/gpxpy/) para la extracción de puntos del gpx.
 
 **Requerimientos y ejecución**
 
@@ -40,7 +40,7 @@ $ pip3 install -r requerimientos.txt
 Por último el programa es ejecutado.
 
 ```
-$ python3 analizador_gpx.py
+$ python3 pre_editor.py
 ```
 
 El programa buscará en la carpeta especificada (asignada como `RUTA` en el archivo py) los puntos de ruta (waypoints) que se encuentran en el gpx y los mostrará en la terminal.

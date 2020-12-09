@@ -3,3 +3,8 @@ __pycache__/
 
 # Entorno virtual
 .venv/
+
+#Trazas mockeadas
+trazas/traza1.gpx
+trazas/traza2.gpx
+trazas/traza3.gpx
