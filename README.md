@@ -3,14 +3,9 @@
 ### Descripción     
 Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existe en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa. 
 
+**Bibliotecas utilizadas**
 
-
-
-**Aspectos de implementación**
-
- Este proyecto se basa en el código del repositorio [gpxheatmap](https://github.com/durian/gpxheatmap), el cual usa las biblioteca `gpxpy` y `folium` (https://python-visualization.github.io/folium/plugins.html). Folium es una bibliioteca de Python3 que permite usar Leaflet, el mapa de calor utiliza como mapa base OSM<img src="https://www.openstreetmap.org/assets/osm_logo_256-ed028f90468224a272961c380ecee0cfb73b8048b34f4b4b204b7f0d1097875d.png" width="15" height="15" />.
-
- Se añadió `flask` (https://flask.palletsprojects.com/en/1.1.x/) para que el mapa generado se pueda ver en una página web.
+* [gpxpy](https://pypi.org/project/gpxpy/) para la extracción de puntos del gpx.
 
 **Requerimientos y ejecución**
 
@@ -25,20 +20,30 @@ $ sudo apt install python3-pip
 ```
 
 Instalar los requerimientos necesarios para la ejecución del programa. Se recomienda utilizar un [entorno virtual](https://python-docs-es.readthedocs.io/es/3.8/library/venv.html), en este proyecto se utilizará el `.venv` como el nombre del entorno virtual.
+
+```
+python3 -m venv .venv
+```
+
+Iniciar/activar el ambiente virtual para dependendecias posteriores
+
+```
+source .venv/bin/activate
+```
+
+Sucesivamente se instalan los requerimientos especificados.
+
 ```
 $ pip3 install -r requerimientos.txt
 ```
 
 Por último el programa es ejecutado.
+
 ```
-$ python3 movilidad.py
+$ python3 pre_editor.py
 ```
 
-El programa buscará las trazas con las cuales generará el mapa de calor en la carpeta `trazas`. Si no cuenta con trazas de movilidad en bicicleta puede  ver el funcionamiento del código usando otras trazas. Por ejemplo [trazas de transporte público.](https://github.com/labexp/trazas-transporte-publico).  El mapa sería así:
-
-<img src="https://raw.githubusercontent.com/wolam/mapa-actividad-bici/master/imagenes-trazas/traza-santabarbar.png" width="500" height="400" />
-
-
+El programa buscará en la carpeta especificada (asignada como `RUTA` en el archivo py) los puntos de ruta (waypoints) que se encuentran en el gpx y los mostrará en la terminal.
 
 
 ## Licencia
