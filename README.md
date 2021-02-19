@@ -40,7 +40,7 @@ $ pip3 install -r requerimientos.txt
 Por último el programa es ejecutado con los argumentos correspondientes.
 
 ```
-$ python3 pre_editor.py ruta_gpx esquema_mapeo [--rango|-r metros]
+$  python3 pre_editor.py (--gpx|-g ruta_gpx) (--esquema|-e) esquema_mapeo [--rango|-r metros]
 ```
 
 **Argumentos**
@@ -48,8 +48,8 @@ $ python3 pre_editor.py ruta_gpx esquema_mapeo [--rango|-r metros]
 El programa buscará en la carpeta especificada (asignada como `ruta_gpx`) los archivos gpx correspondientes\
 para luego analizar los nodos con la ruta del esquema de mapeo (`esquema_mapeo`) brindado.
 
-El `rango` en metros de la circunferencia donde se van a descargar los elementos en OSM es opcional por defecto\
-se encuentra con un valor de 20.
+El `rango` en metros de la circunferencia donde se van a descargar los elementos en OSM es opcional.\
+Por defecto se encuentra con un valor de 20.
 
 
 ## Licencia
