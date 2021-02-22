@@ -6,6 +6,7 @@ Este proyecto tiene como objetivo validar los datos de un GPX para devolver un i
 **Bibliotecas utilizadas**
 
 * [gpxpy](https://pypi.org/project/gpxpy/) para la extracción de puntos del gpx.
+* [overpy](https://github.com/DinoTools/python-overpy)  para descargar nodos desde OSM.
 
 **Requerimientos y ejecución**
 
