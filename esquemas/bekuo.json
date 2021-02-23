@@ -1,0 +1,58 @@
+{
+    "nombre-esquema": "bekuo",
+    "Obstáculo": {
+        "barrier" : "yes",
+        "wheelchair": "no"
+    },
+    "Semáforo audible": {
+        "crossing": "traffic_signals",
+        "traffic_signals:sound": ["walk","yes"]
+    },
+    "Hidrante Seco": {
+        "emergency": "fire_hydrant",
+        "fire_hydrant:type": "pipe"
+    },
+    "Hidrante de Pilar": {
+        "emergency": "fire_hydrant",
+        "fire_hydrant:type": "pillar"
+    },
+    "Hidrante de Pared": {
+        "emergency": "fire_hydrant",
+        "fire_hydrant:type": "wall"
+    },
+    "Hidrante Subterráneo": {
+        "emergency": "fire_hydrant",
+        "fire_hydrant:type": "underground"
+    },
+    "Hidrante Desconocido": {
+        "emergency": "fire_hydrant",
+        "fire_hydrant:type": "unknown"
+    },
+    "Hidrante fuera de servicio": {
+       "disused:emergency": "fire_hydrant"
+    },
+    "Parada de Bus - Tipo 1": {
+        "public_transport" : "platform",
+        "bus": "yes"
+    },
+    "Parada de Bus - Tipo 2": {
+        "public_transport" : "platform",
+        "bus": "yes",
+        "shelter":"yes"
+    },
+    "Parada de Bus - Tipo 3": {
+        "public_transport" : "platform",
+        "bench": "yes",
+        "shelter":"yes",
+        "bus": "yes"
+    },
+    "Alquiler Bicicletas": {
+      "amenity":"bycicle_rental"
+    },
+    "Taxis": {
+        "amenity":"taxi"
+    },
+    "Parqueo Bicicleta": {
+        "amenity":"bike_parking"
+    }
+}
