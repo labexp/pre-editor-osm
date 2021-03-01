@@ -1,4 +1,5 @@
 import os
+import json
 import argparse
 import gpxpy
 import overpy
@@ -7,14 +8,16 @@ import overpy
 parser = argparse.ArgumentParser(
     prog='Pre-editor OSM', description='Analizar trazas capturadas antes de editarlas en OSM')
 
-parser.add_argument('--gpx', '-g',metavar='', required=True,
+parser.add_argument('--gpx', '-g', metavar='', required=True,
                     help="ruta a lo(s) archivo(s) gpx a analizar")
-parser.add_argument('--esquema', '-e', metavar='', required=True, help="ruta del esquema de mapeo")
+parser.add_argument('--esquema', '-e', metavar='',
+                    required=True, help="ruta del esquema de mapeo")
 parser.add_argument('--rango', '-r', metavar='', required=False, default=20,
                     type=int, help='radio en metros de la circunferencia donde se descargarán los '
                     + 'elementos de OSM')
 
 args = parser.parse_args()
+
 
 def mostrar_waypoints(gpx):
     print('{0}Informacion de GPX{0}'.format("-"*10))
@@ -61,10 +64,24 @@ def mostrar_nodos_descargados(resultado, prefijo="\t", mostrar_etiquetas=True):
             for etiqueta in nodo.tags:
                 print(prefijo*2 +  etiqueta, ' = ' + nodo.tags[etiqueta])
 
+def mostrar_esquema(ruta_esquema):
+    with open(ruta_esquema) as esquema:
+        data = json.load(esquema)
+        del data['nombre-esquema']  # evitar recorrer la hilera 'bekuo'
+        # imprimir cada uno de los nodos
+        for nodo in data.keys():
+            print('{0}Nodo encontrado{0} \n{1}'.format("-"*10, nodo))
+            llaves = data[nodo]
+            # imprimir cada llave del esquema con su valor
+            for i, llave in enumerate(llaves):
+                valor = llaves[llave]
+                print('Llave Nº{0} \'{1}:{2}\''.format(i+1, llave, valor))
+
 
 if __name__ == "__main__":
     # mostrar waypoints del gpx de entrada
-    archivo_gpx = open(args.gpx,'r')
+    archivo_gpx = open(args.gpx, 'r')
     gpx = gpxpy.parse(archivo_gpx)
     archivo_gpx.close()
     mostrar_waypoints(gpx)
+    mostrar_esquema(args.esquema)
