@@ -25,10 +25,11 @@ def mostrar_waypoints(gpx):
         print('\nWaypoint Encontrado {0} -> ({1},{2})'.
               format(waypoint.name, waypoint.latitude, waypoint.longitude))
 
-        nodos_alrededor = descargar_nodos_en_rango(waypoint.latitude, waypoint.longitude)
+        nodos_alrededor = descargar_nodos_en_rango(
+            waypoint.latitude, waypoint.longitude)
         if nodos_alrededor:
             print('\tNodos encontrados a {0}m del punto ({1},{2})'.format(args.rango,
-                  waypoint.latitude, waypoint.longitude))
+                                                                          waypoint.latitude, waypoint.longitude))
             mostrar_nodos_descargados(nodos_alrededor)
         else:
             print('\tNo hay nodos cerca del punto.')
@@ -53,7 +54,7 @@ def mostrar_nodos_descargados(resultado, prefijo="\t", mostrar_etiquetas=True):
     Dada una lista de objetos overpy.Node los imprime en un formato como el siguiente:
 
     [prefijo]https://osm.org/node/-ID del nodo-
-	[prefijo][prefijo]-etiqueta1- = -valor1-
+    [prefijo][prefijo]-etiqueta1- = -valor1-
     [prefijo][prefijo]-etiqueta2- = -valor2-
     ...
     [prefijo][prefijo]-etiquetaN- = -valorN-
@@ -62,7 +63,8 @@ def mostrar_nodos_descargados(resultado, prefijo="\t", mostrar_etiquetas=True):
         print(prefijo, "https://osm.org/node/" + str(nodo.id))
         if mostrar_etiquetas:
             for etiqueta in nodo.tags:
-                print(prefijo*2 +  etiqueta, ' = ' + nodo.tags[etiqueta])
+                print(prefijo*2 + etiqueta, ' = ' + nodo.tags[etiqueta])
+
 
 def mostrar_esquema(ruta_esquema):
     with open(ruta_esquema) as esquema:
@@ -76,6 +78,41 @@ def mostrar_esquema(ruta_esquema):
             for i, llave in enumerate(llaves):
                 valor = llaves[llave]
                 print('Llave Nº{0} \'{1}:{2}\''.format(i+1, llave, valor))
+
+
+def imprimir_info(id):
+    """
+    Con base a un identificador de un nodo o vía en Open Street Map,imprime un
+    mensaje de que el nodo se encuentra mapeado correctamente.
+
+    No devuelve ningun valor.
+    """
+    print("[INFO] El nodo osm.org/node/"+str(id)+"está correctamente mapeado.")
+
+
+def imprimir_editar(id, etiquetas_faltantes):
+    """
+    A partir de un identificador de un nodo, indica por medio de un mensaje que dicho
+    nodo debe ser mejorado con las etiquetas de la forma {llave1:valor1...llaveN:valorN}
+    encontradas en el esquema de mapeo.
+
+    No devuelve ningun valor.
+    """
+    print("[REVISAR] El nodo osm.org/node/"+str(id) +
+          "debe ser mejorado con las etiquetas: "+json.dumps(etiquetas_faltantes))
+
+
+def imprimir_revisar(id, etiquetas_sobrantes):
+    """
+    Segun un identificador de un nodo, muestra un mensaje que el elemento tiene mayor cantidad
+    de etiquetas {llave1:valor1...llaveN:valorN} a las que corresponde en el esquema de mapeo.
+
+    No devuelve ningun valor.
+    """
+    print("[REVISAR] El nodo osm.org/node/"+str(id) +
+          "tiene más etiquetas que las indicadas " +
+          "en el esquema de mapeo " + "esquemas/bekuo.json" +
+          "\nLas etiquetas demás son: "+json.dumps(etiquetas_sobrantes))
 
 
 if __name__ == "__main__":
