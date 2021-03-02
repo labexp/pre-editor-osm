@@ -80,6 +80,30 @@ def mostrar_esquema(ruta_esquema):
                 print('Llave Nº{0} \'{1}:{2}\''.format(i+1, llave, valor))
 
 
+def imprimir_encabezado():
+    """
+    Muestra en pantalla un encabezado correspondiente a un informe de una
+    ruta de trazas brindadas y respectivo esquema.
+
+    No devuelve ningun valor.
+    """
+    msj = "Informe \n{0}\n\nAnalizando la ruta {1} con el esquema de mapeo {2}."
+    print(msj.format("="*8, args.gpx, args.esquema))
+
+
+def imprimir_crear(waypoint, etiquetas_nuevas):
+    """
+    Basado en un waypoint indica que se debe crear un nodo con ciertas etiquetas
+    en una coordenada especifica.
+
+    No devuelve ningun valor.
+    """
+
+    msj = "[CREAR] Se daba añadir un nuevo nodo en ({0}, {1}) con las etiquetas:\n{2}"
+    print(msj.format(waypoint.lat, waypoint.lon,
+                     json.dumps(etiquetas_nuevas, indent=4)))
+
+
 def imprimir_info(id):
     """
     Con base a un identificador de un nodo o vía en Open Street Map,imprime un
@@ -87,7 +111,9 @@ def imprimir_info(id):
 
     No devuelve ningun valor.
     """
-    print("[INFO] El nodo osm.org/node/"+str(id)+"está correctamente mapeado.")
+
+    msj = "[INFO] El nodo https://osm.org/node/{} está correctamente mapeado."
+    print(msj.format(id))
 
 
 def imprimir_editar(id, etiquetas_faltantes):
@@ -98,8 +124,9 @@ def imprimir_editar(id, etiquetas_faltantes):
 
     No devuelve ningun valor.
     """
-    print("[REVISAR] El nodo osm.org/node/"+str(id) +
-          "debe ser mejorado con las etiquetas: "+json.dumps(etiquetas_faltantes))
+
+    msj = "[REVISAR] El nodo https://osm.org/node/{0} debe ser mejorado con las etiquetas:\n{1}"
+    print(msj.format(id, json.dumps(etiquetas_faltantes, indent=4)))
 
 
 def imprimir_revisar(id, etiquetas_sobrantes):
@@ -109,10 +136,10 @@ def imprimir_revisar(id, etiquetas_sobrantes):
 
     No devuelve ningun valor.
     """
-    print("[REVISAR] El nodo osm.org/node/"+str(id) +
-          "tiene más etiquetas que las indicadas " +
-          "en el esquema de mapeo " + "esquemas/bekuo.json" +
-          "\nLas etiquetas demás son: "+json.dumps(etiquetas_sobrantes))
+
+    msj = ("[REVISAR] El nodo https://osm.org/node/{0} tiene más etiquetas que las indicadas "
+           "en el esquema de mapeo {1}\nLas etiquetas demás son:\n{2}")
+    print(msj.format(id, args.esquema, json.dumps(etiquetas_sobrantes, indent=4)))
 
 
 if __name__ == "__main__":
