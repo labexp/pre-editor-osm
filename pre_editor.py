@@ -141,6 +141,41 @@ def imprimir_revisar(id, etiquetas_sobrantes):
            "en el esquema de mapeo {1}\nLas etiquetas demás son:\n{2}")
     print(msj.format(id, args.esquema, json.dumps(etiquetas_sobrantes, indent=4)))
 
+def imprimir_resultado(nodo,waypoint,estructura_analisis):
+    pass
+
+def analizar_traza(ruta_gpx):
+    archivo_gpx = open(args.gpx, 'r')
+    gpx = gpxpy.parse(archivo_gpx)
+    # parsear esquema antes
+    for waypoint in gpx.waypoints:
+        nodos_cercanos = descargar_nodos_en_rango(waypoint.lat,waypoint.lon)
+        nombre_waypoint = waypoint.name
+        # etiquetas_esquema = obtener etiquetas del esquema de mapeo asociado a nombre_waypoint
+        for nodo in nodos_cercanos:     
+            etiquetas_osm = nodo.tags
+            #estructura_analisis = analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
+            #imprimir_resultado(nodo,waypoint,estructura_analisis)
+              
+
+def analizar_etiquetas(etiquetas_osm, etiquetas_esquema):
+    """
+    devuelve una estructura que tiene el (cod_caso,etiquetas_sobrantes||faltantes||necesarias||null)
+    """
+    coincidencias = 0
+    for etiqueta_osm in etiquetas_osm.keys():
+        if etiquetas_esquema.get(etiqueta_osm) != None:
+            valor_esquema = etiquetas_esquema[etiqueta_osm]
+            if valor_esquema == etiqueta_osm[etiqueta_osm]:
+                coincidencias +=1
+    if len(etiqueta_osm) == len(etiquetas_esquema) and coincidencias == len(etiqueta_osm):
+        imprimir_info(id)
+
+    # caso info si etiquetas_osm y etiquetas_esquema son iguales
+    # caso editar si etiquetas_osm son mas que etiquetas_esquema
+    # caso crear si etiquetas_osm y etiquetas_esquema no coinciden
+    # caso revisar si etiquetas_esquema tiene mas que etiquetas_osm
+
 
 if __name__ == "__main__":
     # mostrar waypoints del gpx de entrada
