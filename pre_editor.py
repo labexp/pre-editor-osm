@@ -92,8 +92,8 @@ def imprimir_encabezado():
 
 def imprimir_crear(latitud, longitud, etiquetas_nuevas):
     """
-    Basado en un waypoint indica que se debe crear un nodo con ciertas etiquetas
-    en una coordenada especifica.
+    Basado en una latitud y longitudt indica que se debe crear un nodo con ciertas etiquetas
+    en esa coordenada especifica.
 
     No devuelve ningun valor.
     """
@@ -129,7 +129,7 @@ def imprimir_editar(id, etiquetas_faltantes):
 
 def imprimir_revisar(id, etiquetas_sobrantes):
     """
-    Indica que cierto nodo con identificador brindado posee mayor cantidad de etiquetas 
+    Indica que cierto nodo con identificador brindado posee mayor cantidad de etiquetas
     a las que corresponde en el esquema de mapeo y por lo tanto debe ser revisado.
 
     No devuelve ningun valor.
