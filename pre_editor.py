@@ -25,11 +25,10 @@ def mostrar_waypoints(gpx):
         print('\nWaypoint Encontrado {0} -> ({1},{2})'.
               format(waypoint.name, waypoint.latitude, waypoint.longitude))
 
-        nodos_alrededor = descargar_nodos_en_rango(
-            waypoint.latitude, waypoint.longitude)
+        nodos_alrededor = descargar_nodos_en_rango(waypoint.latitude, waypoint.longitude)
         if nodos_alrededor:
             print('\tNodos encontrados a {0}m del punto ({1},{2})'.format(args.rango,
-                                                                          waypoint.latitude, waypoint.longitude))
+                  waypoint.latitude, waypoint.longitude))
             mostrar_nodos_descargados(nodos_alrededor)
         else:
             print('\tNo hay nodos cerca del punto.')
@@ -91,17 +90,16 @@ def imprimir_encabezado():
     print(msj.format("="*8, args.gpx, args.esquema))
 
 
-def imprimir_crear(waypoint, etiquetas_nuevas):
+def imprimir_crear(latitud, longitud, etiquetas_nuevas):
     """
-    Basado en un waypoint indica que se debe crear un nodo con ciertas etiquetas
-    en una coordenada especifica.
+    Basado en una latitud y longitudt indica que se debe crear un nodo con ciertas etiquetas
+    en esa coordenada especifica.
 
     No devuelve ningun valor.
     """
 
-    msj = "[CREAR] Se daba añadir un nuevo nodo en ({0}, {1}) con las etiquetas:\n{2}"
-    print(msj.format(waypoint.lat, waypoint.lon,
-                     json.dumps(etiquetas_nuevas, indent=4)))
+    msj = "[CREAR] Se debe añadir un nuevo nodo en ({0}, {1}) con las etiquetas:\n{2}"
+    print(msj.format(latitud, longitud, json.dumps(etiquetas_nuevas, indent=4)[1:-1]))
 
 
 def imprimir_info(id):
@@ -125,21 +123,56 @@ def imprimir_editar(id, etiquetas_faltantes):
     No devuelve ningun valor.
     """
 
-    msj = "[REVISAR] El nodo https://osm.org/node/{0} debe ser mejorado con las etiquetas:\n{1}"
-    print(msj.format(id, json.dumps(etiquetas_faltantes, indent=4)))
+    msj = "[EDITAR] El nodo https://osm.org/node/{0} debe ser mejorado con las etiquetas:\n{1}"
+    print(msj.format(id, json.dumps(etiquetas_faltantes, indent=4)[1:-1]))
 
 
 def imprimir_revisar(id, etiquetas_sobrantes):
     """
-    Segun un identificador de un nodo, muestra un mensaje que el elemento tiene mayor cantidad
-    de etiquetas {llave1:valor1...llaveN:valorN} a las que corresponde en el esquema de mapeo.
+    Indica que cierto nodo con identificador brindado posee mayor cantidad de etiquetas
+    a las que corresponde en el esquema de mapeo y por lo tanto debe ser revisado.
 
     No devuelve ningun valor.
     """
 
     msj = ("[REVISAR] El nodo https://osm.org/node/{0} tiene más etiquetas que las indicadas "
            "en el esquema de mapeo {1}\nLas etiquetas demás son:\n{2}")
-    print(msj.format(id, args.esquema, json.dumps(etiquetas_sobrantes, indent=4)))
+    print(msj.format(id, args.esquema, json.dumps(etiquetas_sobrantes, indent=4)[1:-1]))
+
+def imprimir_resultado(nodo,waypoint,estructura_analisis):
+    pass
+
+def analizar_traza(ruta_gpx):
+    archivo_gpx = open(args.gpx, 'r')
+    gpx = gpxpy.parse(archivo_gpx)
+    # parsear esquema antes
+    for waypoint in gpx.waypoints:
+        nodos_cercanos = descargar_nodos_en_rango(waypoint.lat,waypoint.lon)
+        nombre_waypoint = waypoint.name
+        # etiquetas_esquema = obtener etiquetas del esquema de mapeo asociado a nombre_waypoint
+        for nodo in nodos_cercanos:     
+            etiquetas_osm = nodo.tags
+            #estructura_analisis = analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
+            #imprimir_resultado(nodo,waypoint,estructura_analisis)
+              
+
+def analizar_etiquetas(etiquetas_osm, etiquetas_esquema):
+    """
+    devuelve una estructura que tiene el (cod_caso,etiquetas_sobrantes||faltantes||necesarias||null)
+    """
+    coincidencias = 0
+    for etiqueta_osm in etiquetas_osm.keys():
+        if etiquetas_esquema.get(etiqueta_osm) != None:
+            valor_esquema = etiquetas_esquema[etiqueta_osm]
+            if valor_esquema == etiqueta_osm[etiqueta_osm]:
+                coincidencias +=1
+    if len(etiqueta_osm) == len(etiquetas_esquema) and coincidencias == len(etiqueta_osm):
+        imprimir_info(id)
+
+    # caso info si etiquetas_osm y etiquetas_esquema son iguales
+    # caso editar si etiquetas_osm son mas que etiquetas_esquema
+    # caso crear si etiquetas_osm y etiquetas_esquema no coinciden
+    # caso revisar si etiquetas_esquema tiene mas que etiquetas_osm
 
 
 def imprimir_resultado(nodo,waypoint,estructura_analisis):

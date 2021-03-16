@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="OSMTracker for Android™ - https://github.com/labexp/osmtracker-android" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd ">
+	<metadata>
+		<name>2021-02-21_10-03-23</name>
+		<keywords>bekuo</keywords>
+		<keywords>osmtracker</keywords>
+	</metadata>
+	<wpt lat="10.032290950935142" lon="-84.21384352327117">
+		<ele>998.0827697096393</ele>
+		<time>2021-02-21T16:04:02Z</time>
+		<name><![CDATA[Parada de Bus - Tipo 3]]></name>
+		<sat>15</sat>
+	</wpt>
+	<wpt lat="10.029784051128404" lon="-84.21501124721962">
+		<ele>999.4496285114437</ele>
+		<time>2021-02-21T16:16:05Z</time>
+		<name><![CDATA[Semáforo audible]]></name>
+		<sat>15</sat>
+	</wpt>
+	<wpt lat="10.027898339757584" lon="-84.21553829520037">
+		<ele>985.4100807439536</ele>
+		<time>2021-02-21T16:20:02Z</time>
+		<name><![CDATA[Taxis]]></name>
+		<sat>15</sat>
+	</wpt>
+	<wpt lat="10.02766919787807" lon="-84.21556624669424">
+		<ele>985.6528039621189</ele>
+		<time>2021-02-21T16:20:26Z</time>
+		<name><![CDATA[Semáforo audible]]></name>
+		<sat>15</sat>
+	</wpt>
+	<trk>
+		<name><![CDATA[Trazado con OSMTracker para Android™]]></name>
+		<trkseg>
+			<trkpt lat="10.022602596416741" lon="-84.21667112741552">
+				<ele>960.429022083059</ele>
+				<time>2021-02-21T16:32:42Z</time>
+				<extensions>
+					<speed>0.0</speed>
+				</extensions>
+			</trkpt>
+		</trkseg>
+	</trk>
+</gpx>
