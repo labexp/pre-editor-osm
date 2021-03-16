@@ -64,7 +64,7 @@ def mostrar_nodos_descargados(resultado, prefijo="\t", mostrar_etiquetas=True):
             for etiqueta in nodo.tags:
                 print(prefijo*2 + etiqueta, ' = ' + nodo.tags[etiqueta])
 
-
+#TODO Esta debe parsear el esquema en memoria en vez de mostrarlo
 def mostrar_esquema(ruta_esquema):
     with open(ruta_esquema) as esquema:
         data = json.load(esquema)
@@ -175,10 +175,70 @@ def analizar_etiquetas(etiquetas_osm, etiquetas_esquema):
     # caso revisar si etiquetas_esquema tiene mas que etiquetas_osm
 
 
+def imprimir_resultado(nodo,waypoint,estructura_analisis):
+    """
+    Recibe una estructura de anális retormada por ::analizar_etiquetas y los datos del nodo y
+    waypoint. Con base a esto decide cuál resultado debe ser impreso. 
+    """
+    caso = estructura_analisis[0]
+    etiquetas_analizadas = estructura_analisis[1]
+    if caso == "INFO":
+        imprimir_info(nodo.id)
+    elif caso == "EDITAR":
+        imprimir_editar(nodo.id,etiquetas_analizadas)
+    elif caso == "CREAR":
+        pass
+        # imprimir_crear()
+    else:
+        imprimir_revisar(nodo.id,etiquetas_analizadas)
+        
+def analizar_traza(ruta_gpx):
+    """
+    recibe una ruta a un archivo GPX.
+
+    """
+    archivo_gpx = open(args.gpx, 'r')
+    gpx = gpxpy.parse(archivo_gpx)
+    # parsear esquema antes
+    for waypoint in gpx.waypoints:
+        nodos_cercanos = descargar_nodos_en_rango(waypoint.lat,waypoint.lon)
+        nombre_waypoint = waypoint.name
+        # etiquetas_esquema = obtener etiquetas del esquema de mapeo asociado a nombre_waypoint
+        for nodo in nodos_cercanos:     
+            etiquetas_osm = nodo.tags
+            estructura_analisis = analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
+            imprimir_resultado(nodo,waypoint,estructura_analisis)
+              
+
+
+def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict) -> list:
+    """
+    devuelve una estructura que tiene el (cod_caso,etiquetas_sobrantes||faltantes||necesarias||null)
+    """
+    coincidencias = 0
+    for etiqueta_osm in etiquetas_osm.keys():
+        if etiquetas_esquema.get(etiqueta_osm) != None:
+            valor_esquema = etiquetas_esquema[etiqueta_osm]
+            if valor_esquema == etiqueta_osm[etiqueta_osm]:
+                coincidencias +=1
+    if len(etiqueta_osm) == len(etiquetas_esquema) and coincidencias == len(etiqueta_osm):
+        # caso info si etiquetas_osm y etiquetas_esquema son iguales
+        return ["INFO", None]
+    
+    # caso editar si etiquetas_osm son mas que etiquetas_esquema
+    # caso crear si etiquetas_osm y etiquetas_esquema no coinciden
+    # caso revisar si etiquetas_esquema tiene mas que etiquetas_osm
+
+
 if __name__ == "__main__":
     # mostrar waypoints del gpx de entrada
+    '''
     archivo_gpx = open(args.gpx, 'r')
     gpx = gpxpy.parse(archivo_gpx)
     archivo_gpx.close()
     mostrar_waypoints(gpx)
     mostrar_esquema(args.esquema)
+    '''
+    etiquetas_osm = {'amenity':'taxi'}
+    etiquetas_esquema = {'amenity':'taxi'}
+    analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
