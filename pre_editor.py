@@ -19,6 +19,19 @@ parser.add_argument('--rango', '-r', metavar='', required=False, default=20,
 args = parser.parse_args()
 
 
+def parsear_esquema():
+    """
+    Se encarga de convertir la ruta del esquema de entrada al programa
+    a un diccionario de datos.
+
+    Devuelve un diccionario correspondiente al esquema de mapeo.json
+    """
+    with open(args.esquema) as archivo_esquema:
+        esquema_parseado = json.load(archivo_esquema)
+    
+    return esquema_parseado
+
+
 def mostrar_waypoints(gpx):
     print('{0}Informacion de GPX{0}'.format("-"*10))
     for waypoint in gpx.waypoints:
@@ -64,20 +77,6 @@ def mostrar_nodos_descargados(resultado, prefijo="\t", mostrar_etiquetas=True):
             for etiqueta in nodo.tags:
                 print(prefijo*2 + etiqueta, ' = ' + nodo.tags[etiqueta])
 
-#TODO Esta debe parsear el esquema en memoria en vez de mostrarlo
-def mostrar_esquema(ruta_esquema):
-    with open(ruta_esquema) as esquema:
-        data = json.load(esquema)
-        del data['nombre-esquema']  # evitar recorrer la hilera 'bekuo'
-        # imprimir cada uno de los nodos
-        for nodo in data.keys():
-            print('{0}Nodo encontrado{0} \n{1}'.format("-"*10, nodo))
-            llaves = data[nodo]
-            # imprimir cada llave del esquema con su valor
-            for i, llave in enumerate(llaves):
-                valor = llaves[llave]
-                print('Llave Nº{0} \'{1}:{2}\''.format(i+1, llave, valor))
-
 
 def imprimir_encabezado():
     """
@@ -97,7 +96,6 @@ def imprimir_crear(latitud, longitud, etiquetas_nuevas):
 
     No devuelve ningun valor.
     """
-
     msj = "[CREAR] Se debe añadir un nuevo nodo en ({0}, {1}) con las etiquetas:\n{2}"
     print(msj.format(latitud, longitud, json.dumps(etiquetas_nuevas, indent=4)[1:-1]))
 
@@ -109,7 +107,6 @@ def imprimir_info(id):
 
     No devuelve ningun valor.
     """
-
     msj = "[INFO] El nodo https://osm.org/node/{} está correctamente mapeado."
     print(msj.format(id))
 
@@ -122,7 +119,6 @@ def imprimir_editar(id, etiquetas_faltantes):
 
     No devuelve ningun valor.
     """
-
     msj = "[EDITAR] El nodo https://osm.org/node/{0} debe ser mejorado con las etiquetas:\n{1}"
     print(msj.format(id, json.dumps(etiquetas_faltantes, indent=4)[1:-1]))
 
@@ -134,7 +130,6 @@ def imprimir_revisar(id, etiquetas_sobrantes):
 
     No devuelve ningun valor.
     """
-
     msj = ("[REVISAR] El nodo https://osm.org/node/{0} tiene más etiquetas que las indicadas "
            "en el esquema de mapeo {1}\nLas etiquetas demás son:\n{2}")
     print(msj.format(id, args.esquema, json.dumps(etiquetas_sobrantes, indent=4)[1:-1]))
@@ -163,7 +158,6 @@ def analizar_traza(ruta_gpx):
     Recibe una ruta a un archivo GPX el cual cada uno de sus waypoints debe ser analizado.
 
     No devuelve ningún valor
-
     """
     archivo_gpx = open(args.gpx, 'r')
     gpx = gpxpy.parse(archivo_gpx)
@@ -171,7 +165,7 @@ def analizar_traza(ruta_gpx):
     for waypoint in gpx.waypoints:
         nodos_cercanos = descargar_nodos_en_rango(waypoint.lat,waypoint.lon)
         nombre_waypoint = waypoint.name
-        # etiquetas_esquema = obtener etiquetas del esquema de mapeo asociado a nombre_waypoint
+        etiquetas_esquema = esquema_mapeo_global[nombre_waypoint]
         for nodo in nodos_cercanos:     
             etiquetas_osm = nodo.tags
             estructura_analisis = analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
@@ -184,7 +178,6 @@ def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict) -> list:
     
     Devuelve una estructura una lista con el formato
     [cod_caso,etiquetas_sobrantes||faltantes||necesarias||null]
-
     """
     total_osm = len(etiquetas_osm)
     total_esquema = len(etiquetas_esquema)
@@ -206,6 +199,8 @@ def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict) -> list:
         # caso crear si etiquetas_esquema  son mas que etiquetas_osm
         return ["REVISAR",sobrantes]
     
+
+esquema_mapeo_global = parsear_esquema()
 
 if __name__ == "__main__":
     '''
