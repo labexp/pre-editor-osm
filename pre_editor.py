@@ -142,24 +142,27 @@ def imprimir_revisar(id, etiquetas_sobrantes):
 
 def imprimir_resultado(nodo,waypoint,estructura_analisis):
     """
-    Recibe una estructura de anális retormada por ::analizar_etiquetas y los datos del nodo y
+    Recibe una estructura de anális retormada por analizar_etiquetas y los datos del nodo y
     waypoint. Con base a esto decide cuál resultado debe ser impreso. 
+
+    No devuelve ningun valor.
     """
     caso = estructura_analisis[0]
     etiquetas_analizadas = estructura_analisis[1]
-    if caso == "INFO":
-        imprimir_info(nodo.id)
+    if caso == "REVISAR":
+        imprimir_revisar(nodo.id,etiquetas_analizadas)
     elif caso == "EDITAR":
         imprimir_editar(nodo.id,etiquetas_analizadas)
     elif caso == "CREAR":
-        pass
-        # imprimir_crear()
+        imprimir_crear(waypoint.latitude,waypoint.longitude,etiquetas_analizadas)
     else:
-        imprimir_revisar(nodo.id,etiquetas_analizadas)
+        imprimir_info(nodo.id)
         
 def analizar_traza(ruta_gpx):
     """
-    recibe una ruta a un archivo GPX.
+    Recibe una ruta a un archivo GPX el cual cada uno de sus waypoints debe ser analizado.
+
+    No devuelve ningún valor
 
     """
     archivo_gpx = open(args.gpx, 'r')
@@ -171,31 +174,40 @@ def analizar_traza(ruta_gpx):
         # etiquetas_esquema = obtener etiquetas del esquema de mapeo asociado a nombre_waypoint
         for nodo in nodos_cercanos:     
             etiquetas_osm = nodo.tags
-            # estructura_analisis = analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
-            # imprimir_resultado(nodo,waypoint,estructura_analisis)
+            estructura_analisis = analizar_etiquetas(etiquetas_osm, etiquetas_esquema)
+            imprimir_resultado(nodo,waypoint,estructura_analisis)
               
 def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict) -> list:
     """
-    devuelve una estructura que tiene el (cod_caso,etiquetas_sobrantes||faltantes||necesarias||null)
+    Segun las etiquetas en osm cercanas y las etiquetas en el esquema de cierto waypoint,
+    analiza si las etiquetas de osm se encuentran correctamente mapeadas o viceversa.
+    
+    Devuelve una estructura una lista con el formato
+    [cod_caso,etiquetas_sobrantes||faltantes||necesarias||null]
+
     """
-    coincidencias = 0
-    for llave_osm in etiquetas_osm.keys():
-        if etiquetas_esquema.get(llave_osm) != None:
-            valor_esquema = etiquetas_esquema[llave_osm]
-            valor_osm = etiquetas_osm[llave_osm]
-            if valor_esquema == valor_osm:
-                coincidencias +=1
-    if len(etiquetas_osm) == len(etiquetas_esquema) and coincidencias == len(etiquetas_osm):
+    total_osm = len(etiquetas_osm)
+    total_esquema = len(etiquetas_esquema)
+
+    coincidencias = dict(etiquetas_osm.items() & etiquetas_esquema.items())
+    faltantes = dict(etiquetas_osm.items() - etiquetas_esquema.items())
+    sobrantes = dict(etiquetas_esquema.items() - etiquetas_osm.items())
+
+    if total_esquema == total_osm and total_osm == len(coincidencias):
         # caso info si etiquetas_osm y etiquetas_esquema son iguales
         return ["INFO", None]
+    elif len(faltantes) >= len(coincidencias):
+        # caso editar si etiquetas_osm son mas que etiquetas_esquema
+        return ["EDITAR",faltantes]
+    elif len(coincidencias) == 0:
+        # caso crear si etiquetas_osm y etiquetas_esquema no coinciden
+        return ["CREAR",etiquetas_esquema]
+    elif len(sobrantes) >= len(coincidencias):
+        # caso crear si etiquetas_esquema  son mas que etiquetas_osm
+        return ["REVISAR",sobrantes]
     
-    # caso editar si etiquetas_osm son mas que etiquetas_esquema
-    # caso crear si etiquetas_osm y etiquetas_esquema no coinciden
-    # caso revisar si etiquetas_esquema tiene mas que etiquetas_osm
-
 
 if __name__ == "__main__":
-    # mostrar waypoints del gpx de entrada
     '''
     archivo_gpx = open(args.gpx, 'r')
     gpx = gpxpy.parse(archivo_gpx)
