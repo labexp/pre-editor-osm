@@ -6,7 +6,7 @@
     },
     "Semáforo audible": {
         "crossing": "traffic_signals",
-        "traffic_signals:sound": ["walk","yes"]
+        "traffic_signals:sound": "walk;yes"
     },
     "Hidrante Seco": {
         "emergency": "fire_hydrant",

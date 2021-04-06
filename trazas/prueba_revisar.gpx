@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" version="1.1" creator="OSMTracker for Android™ - https://github.com/labexp/osmtracker-android" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd ">
+	<metadata>
+		<name>2021-02-21_10-03-23</name>
+		<keywords>bekuo</keywords>
+		<keywords>osmtracker</keywords>
+	</metadata>
+	<wpt lat="10.032290950935142" lon="-84.21384352327117">
+		<ele>998.0827697096393</ele>
+		<time>2021-02-21T16:04:02Z</time>
+		<name><![CDATA[Parada de Bus - Tipo 3]]></name>
+		<sat>15</sat>
+	</wpt>
+	<trk>
+		<name><![CDATA[Trazado con OSMTracker para Android™]]></name>
+		<trkseg>
+			<trkpt lat="10.022602596416741" lon="-84.21667112741552">
+				<ele>960.429022083059</ele>
+				<time>2021-02-21T16:32:42Z</time>
+				<extensions>
+					<speed>0.0</speed>
+				</extensions>
+			</trkpt>
+		</trkseg>
+	</trk>
+</gpx>
