@@ -35,7 +35,8 @@ def parsear_esquema() -> dict:
     return esquema_parseado
 
 
-def descargar_nodos_en_rango(lat: float, lon: float, debug=False) -> list:
+def descargar_nodos_en_rango(lat: float, lon: float,
+                             debug=False) -> [overpy.Node]:
     """
     A partir de un punto (lat, lon) dado como argumento, descarga
     todos los nodos que se encuentren a una distancia de 'rango'
@@ -48,13 +49,14 @@ def descargar_nodos_en_rango(lat: float, lon: float, debug=False) -> list:
     # Consulta descarga nodos, pero si se cambia "node"
     # por "nwr" descarga vías y relaciones.
     consulta = "node(around:%s, %s, %s); out;" % (args.rango, lat, lon)
-    resultado = api.query(consulta)
+    descarga_nodos = api.query(consulta)
     if debug:
-        mostrar_nodos_descargados(resultado)
-    return resultado
+        mostrar_nodos_descargados(descarga_nodos)
+    return descarga_nodos
 
 
-def mostrar_nodos_descargados(resultado: list, mostrar_etiquetas=True) -> None:
+def mostrar_nodos_descargados(nodos_descargados: [overpy.Node],
+                              mostrar_etiquetas=True) -> None:
     """
     Dada una lista de objetos overpy.Node los imprime en un
     formato como el siguiente:
@@ -68,8 +70,8 @@ def mostrar_nodos_descargados(resultado: list, mostrar_etiquetas=True) -> None:
     debug_preambulo = "DEBUG (mostrar_nodos_descargados): "
     url = "https://osm.org/node/"
     print('{0} Se descargaron {1} nodos.'.
-          format(debug_preambulo, len(resultado.nodes)))
-    for nodo in resultado.nodes:
+          format(debug_preambulo, len(nodos_descargados.nodes)))
+    for nodo in nodos_descargados.nodes:
         print('{:>10}{}'.format(url, nodo.id))
         if mostrar_etiquetas:
             for llave, valor in nodo.tags.items():
@@ -101,7 +103,8 @@ def imprimir_encabezado_waypoint(nombre: str,
     print(msj.format(nombre, latitud, longitud))
 
 
-def imprimir_crear(latitud, longitud, etiquetas_nuevas) -> None:
+def imprimir_crear(latitud: float, longitud: float,
+                   etiquetas_nuevas: dict) -> None:
     """
     Basado en una latitud y longitud indica que se debe crear un
     nodo con ciertas etiquetas en esa coordenada especifica.
@@ -164,7 +167,7 @@ def imprimir_revisar(argumentos_imprimir: (int, dict, float, float)) -> None:
         etiquetas_sobrantes, indent=4)[1:-1]))
 
 
-def imprimir_resultado(resultado: tuple, id: int,
+def imprimir_resultado(resultado: (callable, dict), id: int,
                        latitud: float, longitud: float) -> None:
     """
     Recibe un resultado retornado de la forma
@@ -231,8 +234,8 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
                 imprimir_crear(latitud, longitud, etiquetas_esquema)
 
 
-def analizar_etiquetas(etiquetas_osm: dict,
-                       etiquetas_esquema: dict, debug=True) -> tuple:
+def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict,
+                       debug=True) -> (callable, dict):
     """
     Segun las etiquetas en osm cercanas y las etiquetas en el
     esquema de cierto waypoint, determina cual es la funcion
@@ -270,7 +273,7 @@ def analizar_etiquetas(etiquetas_osm: dict,
     total_esquema = len(etiquetas_esquema)
 
     coincidencias = dict(etiquetas_osm.items() & etiquetas_esquema.items())
-    # "sobrantes_en_osm": están en OSM y no en el esquema.
+    # sobrantes_en_osm: están en OSM y no en el esquema.
     sobrantes_en_osm = dict(etiquetas_osm.items() - etiquetas_esquema.items())
     # sobrantes_esquema: están en el esquema y no en OSM
     sobrantes_esquema = dict(etiquetas_esquema.items() - etiquetas_osm.items())
