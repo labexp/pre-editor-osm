@@ -35,6 +35,56 @@ def parsear_esquema() -> dict:
     return esquema_parseado
 
 
+def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX, debug=False) -> (int):
+    """
+    Calcula las coordendas del cuadro delimitador (`bbox`) más pequeño capaz
+    de contener los puntos de referencia de la traza (`waypoints`). El orden de
+    las coordendas del cuadro delimitador es el utilizado por Overpass, el cual
+    es:
+    (latitud inferior, longitud inferior, latitud superior, longitud superior)
+    """
+    # índices constantes
+    LATITUD_INFERIOR, LONGITUD_INFERIOR = 0, 1
+    LATITUD_SUPERIOR, LONGITUD_SUPERIOR = 2, 3
+
+    lat, lon = gpx.waypoints[0].latitude, gpx.waypoints[0].longitude
+    # [latitud inferior, longitud inferior, latitud superior, longitud superior]
+    cuadro = [lat, lon, lat, lon]
+
+    # revisa los puntos de cada punto de refrencia
+    for waypoint in gpx.waypoints[1:]:
+        if waypoint.latitude < cuadro[LATITUD_INFERIOR]:
+            cuadro[LATITUD_INFERIOR] = waypoint.latitude
+        if waypoint.latitude > cuadro[LATITUD_SUPERIOR]:
+            cuadro[LATITUD_SUPERIOR] = waypoint.latitude
+
+        if waypoint.longitude < cuadro[LONGITUD_INFERIOR]:
+            cuadro[LONGITUD_INFERIOR] = waypoint.longitude
+        if waypoint.longitude > cuadro[LONGITUD_SUPERIOR]:
+            cuadro[LONGITUD_SUPERIOR] = waypoint.longitude
+
+    if debug:
+        print("El cuadro es: ", cuadro)
+
+    return tuple(cuadro)
+
+
+def descargar_nodos_en_cuadro_delimitador(cuadro : (int),
+                                          debug=False) -> [overpy.Node]:
+    """
+    Descarga todos los nodos con al menos una etiqueta ubicados dentro de las
+    coordendas del cuadro delimitador.
+
+    Devuelve una lista de objetos overpy.Node.
+    """
+    api = overpy.Overpass()
+    consulta = "node" +str(cuadro) + "(if:count_tags() > 0); out;"
+    descarga_nodos = api.query(consulta)
+    if debug:
+        mostrar_nodos_descargados(descarga_nodos)
+    return descarga_nodos
+
+
 def descargar_nodos_en_rango(lat: float, lon: float,
                              debug=False) -> [overpy.Node]:
     """
@@ -319,4 +369,16 @@ esquema = parsear_esquema()
 if __name__ == "__main__":
     ruta_gpx = args.gpx
     debug = args.debug
-    analizar_traza(ruta_gpx, debug)
+    # analizar_traza(ruta_gpx, debug)
+
+
+    ## Pruebas del método descargar nodos en cuadro delimitador
+
+    # TODO: eliminar estos dos líneas
+    archivo_gpx = open(ruta_gpx, 'r')
+    gpx = gpxpy.parse(archivo_gpx)
+    cuadro = obtener_cuadro_delimitador_de_gpx(gpx, True)
+    # TODO: eliminar esta línea
+    archivo_gpx.close()
+
+    descargar_nodos_en_cuadro_delimitador(cuadro, True)
