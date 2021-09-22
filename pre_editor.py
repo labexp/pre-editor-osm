@@ -2,6 +2,7 @@ import json
 import argparse
 import gpxpy
 import overpy
+from geopy.distance import geodesic
 
 # Manejar entradas
 parser = argparse.ArgumentParser(
@@ -74,35 +75,33 @@ def descargar_nodos_en_cuadro_delimitador(cuadro : (int),
     """
     Descarga todos los nodos con al menos una etiqueta ubicados dentro de las
     coordendas del cuadro delimitador.
-
-    Devuelve una lista de objetos overpy.Node.
     """
     api = overpy.Overpass()
     consulta = "node" +str(cuadro) + "(if:count_tags() > 0); out;"
     descarga_nodos = api.query(consulta)
     if debug:
+        print("Número de nodos con al menos una etiqueta: ", len(nodos_totales))
         mostrar_nodos_descargados(descarga_nodos)
-    return descarga_nodos
+    return descarga_nodos.get_nodes()
 
 
-def descargar_nodos_en_rango(lat: float, lon: float,
-                             debug=False) -> [overpy.Node]:
+def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float, lon: float,
+                           rango=args.rango, debug=False) -> [overpy.Node]:
     """
-    A partir de un punto (lat, lon) dado como argumento, descarga
-    todos los nodos que se encuentren a una distancia de 'rango'
-    metros.
-
-    Devuelve una lista de objetos overpy.Node.
+    Recorre la lista de nodos_totales descargados de OSM y selecciona aquellos
+    que se encuentren dentro de la circunferencia con centro en lat y lon, con
+    radio rango.
     """
-    api = overpy.Overpass()
 
-    # Consulta descarga nodos, pero si se cambia "node"
-    # por "nwr" descarga vías y relaciones.
-    consulta = "node(around:%s, %s, %s); out;" % (args.rango, lat, lon)
-    descarga_nodos = api.query(consulta)
+    nodos_en_rango = []
+
+    for nodo in nodos_totales:
+        distancia = geodesic((lat, lon), (nodo.lat, nodo.lon)).meters
+        if distancia <= rango:
+            nodos_en_rango += [nodo]
     if debug:
-        mostrar_nodos_descargados(descarga_nodos)
-    return descarga_nodos
+        print("Número de nodos en rango: ", len(nodos_en_rango))
+    return nodos_en_rango
 
 
 def mostrar_nodos_descargados(nodos_descargados: [overpy.Node],
@@ -252,6 +251,10 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
     gpx = gpxpy.parse(archivo_gpx)
     archivo_gpx.close()
 
+    # obtiene todos los nodos en el área trazada
+    cuadro = obtener_cuadro_delimitador_de_gpx(gpx, debug)
+    nodos_totales = descargar_nodos_en_cuadro_delimitador(cuadro, debug)
+
     for waypoint in gpx.waypoints:
 
         # Obtener los atributos del waypoint
@@ -260,7 +263,8 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
         nombre = waypoint.name
 
         # Mostrar informacion del waypoint
-        nodos_cercanos = descargar_nodos_en_rango(latitud, longitud, debug)
+        nodos_cercanos = obtener_nodos_en_rango(nodos_totales, latitud,
+                                                longitud, debug)
         imprimir_encabezado_waypoint(nombre, latitud, longitud)
 
         # Se asume que las etiquetas del waypoint no se encuentran en OSM
@@ -269,7 +273,7 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
         # Si no hay etiquetas en el esquema con ese nombre se omite
         etiquetas_esquema = esquema.get(nombre)
         if etiquetas_esquema is not None:
-            for nodo in nodos_cercanos.nodes:
+            for nodo in nodos_cercanos:
                 etiquetas_osm = nodo.tags
                 resultado = analizar_etiquetas(
                     etiquetas_osm, etiquetas_esquema, debug)
@@ -369,16 +373,4 @@ esquema = parsear_esquema()
 if __name__ == "__main__":
     ruta_gpx = args.gpx
     debug = args.debug
-    # analizar_traza(ruta_gpx, debug)
-
-
-    ## Pruebas del método descargar nodos en cuadro delimitador
-
-    # TODO: eliminar estos dos líneas
-    archivo_gpx = open(ruta_gpx, 'r')
-    gpx = gpxpy.parse(archivo_gpx)
-    cuadro = obtener_cuadro_delimitador_de_gpx(gpx, True)
-    # TODO: eliminar esta línea
-    archivo_gpx.close()
-
-    descargar_nodos_en_cuadro_delimitador(cuadro, True)
+    analizar_traza(ruta_gpx, debug)
