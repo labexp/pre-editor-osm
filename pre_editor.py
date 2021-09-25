@@ -1,8 +1,11 @@
-import json
 import argparse
 import gpxpy
+import json
 import overpy
+import pickle
+
 from geopy.distance import geodesic
+from typing import Tuple
 
 # Manejar entradas
 parser = argparse.ArgumentParser(
@@ -22,6 +25,8 @@ parser.add_argument('--debug', '-d', metavar='', required=False, default=False,
 
 args = parser.parse_args()
 
+RUTA_ARCHIVO_NODOS = "datos/nodos.pickle"
+
 
 def parsear_esquema() -> dict:
     """
@@ -36,11 +41,11 @@ def parsear_esquema() -> dict:
     return esquema_parseado
 
 
-def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX, debug=False) -> (int):
+def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX) -> Tuple[float, ...]:
     """
-    Calcula las coordendas del cuadro delimitador (`bbox`) más pequeño capaz
+    Calcula las coordenadas del cuadro delimitador (`bbox`) más pequeño capaz
     de contener los puntos de referencia de la traza (`waypoints`). El orden de
-    las coordendas del cuadro delimitador es el utilizado por Overpass, el cual
+    las coordenadas del cuadro delimitador es el utilizado por Overpass, el cual
     es:
     (latitud inferior, longitud inferior, latitud superior, longitud superior)
     """
@@ -70,11 +75,11 @@ def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX, debug=False) -> (int):
     return tuple(cuadro)
 
 
-def descargar_nodos_en_cuadro_delimitador(cuadro : (int),
-                                          debug=False) -> [overpy.Node]:
+def descargar_nodos_en_cuadro_delimitador(
+        cuadro:  Tuple[float, ...]) -> [overpy.Node]:
     """
     Descarga todos los nodos con al menos una etiqueta ubicados dentro de las
-    coordendas del cuadro delimitador.
+    coordenadas del cuadro delimitador.
     """
     api = overpy.Overpass()
     consulta = "node" + str(cuadro) + "(if:count_tags() > 0); out;"
@@ -86,8 +91,8 @@ def descargar_nodos_en_cuadro_delimitador(cuadro : (int),
     return nodos_descargados
 
 
-def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float, lon: float,
-                           rango=args.rango, debug=False) -> [overpy.Node]:
+def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float,
+                           lon: float, rango=args.rango) -> [overpy.Node]:
     """
     Recorre la lista de nodos_totales descargados de OSM y selecciona aquellos
     que se encuentren dentro de la circunferencia con centro en lat y lon, con
@@ -103,6 +108,33 @@ def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float, lon: float,
     if debug:
         print("Número de nodos en rango: ", len(nodos_en_rango))
     return nodos_en_rango
+
+
+def almacenar_nodos(nodos: [overpy.Node]) -> None:
+    """
+    De una lista con nodos tipo overpy.Node,
+    almacena cada uno de los nodos en un archivo binario.
+    """
+
+    with open(RUTA_ARCHIVO_NODOS, 'wb') as archivo:
+        pickle.dump(nodos, archivo, pickle.HIGHEST_PROTOCOL)
+        if debug:
+            print("Los nodos fueron guardados en el archivo binario")
+    archivo.close()
+
+
+def leer_nodos_en_archivo() -> list:
+    """
+     Construye una lista de objetos overpy.Node a
+     partir de los datos existentes en un archivo.
+    """
+
+    with open(RUTA_ARCHIVO_NODOS, 'rb') as archivo:
+        nodos = pickle.load(archivo)
+        if debug:
+            print("Los nodos del archivo binario fueron leidos")
+    archivo.close()
+    return nodos
 
 
 def mostrar_nodos_descargados(nodos_descargados: [overpy.Node],
@@ -194,7 +226,7 @@ def imprimir_editar(argumentos_imprimir: (int, dict, float, float)) -> None:
     """
     id, etiquetas_faltantes, _, _ = argumentos_imprimir
     msj = ("[EDITAR] El nodo https://osm.org/node/{0}"
-           "debe ser mejorado con las etiquetas:\n{1}")
+           " debe ser mejorado con las etiquetas:\n{1}")
     print(msj.format(id, json.dumps(etiquetas_faltantes, indent=4)[1:-1]))
 
 
@@ -211,7 +243,7 @@ def imprimir_revisar(argumentos_imprimir: (int, dict, float, float)) -> None:
     """
     id, etiquetas_sobrantes, _, _ = argumentos_imprimir
     msj = ("[REVISAR] El nodo https://osm.org/node/{0}"
-           "tiene más etiquetas que las indicadas en el"
+           " tiene más etiquetas que las indicadas en el"
            "esquema de mapeo {1}\nLas etiquetas demás son:\n{2}")
     print(msj.format(id, args.esquema, json.dumps(
         etiquetas_sobrantes, indent=4)[1:-1]))
@@ -234,7 +266,7 @@ def imprimir_resultado(resultado: (callable, dict), id: int,
     funcion_imprimir(argumentos_imprimir)
 
 
-def analizar_traza(ruta_gpx: str, debug=False) -> None:
+def analizar_traza(ruta_gpx: str) -> None:
     """
     Recibe una ruta a un archivo GPX el cual cada uno de sus
     waypoints debe ser analizado.
@@ -253,8 +285,11 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
     archivo_gpx.close()
 
     # obtiene todos los nodos en el área trazada
-    cuadro = obtener_cuadro_delimitador_de_gpx(gpx, debug)
-    nodos_totales = descargar_nodos_en_cuadro_delimitador(cuadro, debug)
+    # los nodos pueden tomarse de un archivo fijo si se desea
+    # nodos_totales = leer_nodos_en_archivo()
+    cuadro = obtener_cuadro_delimitador_de_gpx(gpx)
+    nodos_totales = descargar_nodos_en_cuadro_delimitador(cuadro)
+    almacenar_nodos(nodos_totales)
 
     for waypoint in gpx.waypoints:
 
@@ -265,7 +300,7 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
 
         # Mostrar informacion del waypoint
         nodos_cercanos = obtener_nodos_en_rango(nodos_totales, latitud,
-                                                longitud, debug)
+                                                longitud)
         imprimir_encabezado_waypoint(nombre, latitud, longitud)
 
         # Se asume que las etiquetas del waypoint no se encuentran en OSM
@@ -277,7 +312,7 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
             for nodo in nodos_cercanos:
                 etiquetas_osm = nodo.tags
                 resultado = analizar_etiquetas(
-                    etiquetas_osm, etiquetas_esquema, debug)
+                    etiquetas_osm, etiquetas_esquema)
 
                 # Si el resultado fue un caso esperado quiere decir que
                 # las etiquetas analizadas ya estaban en OSM
@@ -289,8 +324,8 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
                 imprimir_crear(latitud, longitud, etiquetas_esquema)
 
 
-def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict,
-                       debug=True) -> (callable, dict):
+def analizar_etiquetas(etiquetas_osm: dict,
+                       etiquetas_esquema: dict) -> (callable, dict):
     """
     Segun las etiquetas en osm cercanas y las etiquetas en el
     esquema de cierto waypoint, determina cual es la funcion
@@ -338,21 +373,21 @@ def analizar_etiquetas(etiquetas_osm: dict, etiquetas_esquema: dict,
         # caso info si etiquetas_osm y etiquetas_esquema son iguales
         if debug:
             print('{0} INFO (None)'.format(debug_preambulo))
-        return (imprimir_info, None)
+        return imprimir_info, None
 
     # EDITAR
     elif len(coincidencias) >= 1 and len(sobrantes_esquema) >= 1:
         # caso editar si etiquetas_osm son mas que etiquetas_esquema
         if debug:
             print('{0} EDITAR {1}'.format(debug_preambulo, sobrantes_esquema))
-        return (imprimir_editar, sobrantes_esquema)
+        return imprimir_editar, sobrantes_esquema
 
     # REVISAR
     elif len(coincidencias) == total_esquema and len(sobrantes_en_osm) > 0:
         # caso crear si etiquetas_esquema son mas que etiquetas_osm
         if debug:
             print('{0} REVISAR {1}'.format(debug_preambulo, sobrantes_en_osm))
-        return (imprimir_revisar, sobrantes_en_osm)
+        return imprimir_revisar, sobrantes_en_osm
 
     # NADA: candidato a caso de CREAR
     else:
@@ -374,4 +409,4 @@ esquema = parsear_esquema()
 if __name__ == "__main__":
     ruta_gpx = args.gpx
     debug = args.debug
-    analizar_traza(ruta_gpx, debug)
+    analizar_traza(ruta_gpx)

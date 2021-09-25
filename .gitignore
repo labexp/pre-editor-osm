@@ -1,4 +1,7 @@
-# Python bytecode 
+# IDE
+.idea/
+
+# Python bytecode
 __pycache__/
 
 # Entorno virtual
