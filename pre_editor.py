@@ -77,12 +77,13 @@ def descargar_nodos_en_cuadro_delimitador(cuadro : (int),
     coordendas del cuadro delimitador.
     """
     api = overpy.Overpass()
-    consulta = "node" +str(cuadro) + "(if:count_tags() > 0); out;"
-    descarga_nodos = api.query(consulta)
+    consulta = "node" + str(cuadro) + "(if:count_tags() > 0); out;"
+    nodos_descargados = api.query(consulta).get_nodes()
     if debug:
-        print("Número de nodos con al menos una etiqueta: ", len(nodos_totales))
-        mostrar_nodos_descargados(descarga_nodos)
-    return descarga_nodos.get_nodes()
+        print("Número de nodos con al menos una etiqueta: ",
+              len(nodos_descargados))
+        mostrar_nodos_descargados(nodos_descargados)
+    return nodos_descargados
 
 
 def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float, lon: float,
@@ -119,8 +120,8 @@ def mostrar_nodos_descargados(nodos_descargados: [overpy.Node],
     debug_preambulo = "DEBUG (mostrar_nodos_descargados): "
     url = "https://osm.org/node/"
     print('{0} Se descargaron {1} nodos.'.
-          format(debug_preambulo, len(nodos_descargados.nodes)))
-    for nodo in nodos_descargados.nodes:
+          format(debug_preambulo, len(nodos_descargados)))
+    for nodo in nodos_descargados:
         print('{:>10}{}'.format(url, nodo.id))
         if mostrar_etiquetas:
             for llave, valor in nodo.tags.items():

@@ -1,7 +1,7 @@
 # Pre Editor OSM
 
 ### Descripción     
-Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existe en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa.
+Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existente en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa.
 
 **Bibliotecas utilizadas**
 
