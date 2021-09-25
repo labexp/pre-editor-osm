@@ -2,6 +2,7 @@ import json
 import argparse
 import gpxpy
 import overpy
+from geopy.distance import geodesic
 
 # Manejar entradas
 parser = argparse.ArgumentParser(
@@ -35,24 +36,73 @@ def parsear_esquema() -> dict:
     return esquema_parseado
 
 
-def descargar_nodos_en_rango(lat: float, lon: float,
-                             debug=False) -> [overpy.Node]:
+def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX, debug=False) -> (int):
     """
-    A partir de un punto (lat, lon) dado como argumento, descarga
-    todos los nodos que se encuentren a una distancia de 'rango'
-    metros.
+    Calcula las coordendas del cuadro delimitador (`bbox`) más pequeño capaz
+    de contener los puntos de referencia de la traza (`waypoints`). El orden de
+    las coordendas del cuadro delimitador es el utilizado por Overpass, el cual
+    es:
+    (latitud inferior, longitud inferior, latitud superior, longitud superior)
+    """
+    # índices constantes
+    LATITUD_INFERIOR, LONGITUD_INFERIOR = 0, 1
+    LATITUD_SUPERIOR, LONGITUD_SUPERIOR = 2, 3
 
-    Devuelve una lista de objetos overpy.Node.
+    lat, lon = gpx.waypoints[0].latitude, gpx.waypoints[0].longitude
+    # [latitud inferior, longitud inferior, latitud superior, longitud superior]
+    cuadro = [lat, lon, lat, lon]
+
+    # revisa los puntos de cada punto de refrencia
+    for waypoint in gpx.waypoints[1:]:
+        if waypoint.latitude < cuadro[LATITUD_INFERIOR]:
+            cuadro[LATITUD_INFERIOR] = waypoint.latitude
+        if waypoint.latitude > cuadro[LATITUD_SUPERIOR]:
+            cuadro[LATITUD_SUPERIOR] = waypoint.latitude
+
+        if waypoint.longitude < cuadro[LONGITUD_INFERIOR]:
+            cuadro[LONGITUD_INFERIOR] = waypoint.longitude
+        if waypoint.longitude > cuadro[LONGITUD_SUPERIOR]:
+            cuadro[LONGITUD_SUPERIOR] = waypoint.longitude
+
+    if debug:
+        print("El cuadro es: ", cuadro)
+
+    return tuple(cuadro)
+
+
+def descargar_nodos_en_cuadro_delimitador(cuadro : (int),
+                                          debug=False) -> [overpy.Node]:
+    """
+    Descarga todos los nodos con al menos una etiqueta ubicados dentro de las
+    coordendas del cuadro delimitador.
     """
     api = overpy.Overpass()
-
-    # Consulta descarga nodos, pero si se cambia "node"
-    # por "nwr" descarga vías y relaciones.
-    consulta = "node(around:%s, %s, %s); out;" % (args.rango, lat, lon)
-    descarga_nodos = api.query(consulta)
+    consulta = "node" + str(cuadro) + "(if:count_tags() > 0); out;"
+    nodos_descargados = api.query(consulta).get_nodes()
     if debug:
-        mostrar_nodos_descargados(descarga_nodos)
-    return descarga_nodos
+        print("Número de nodos con al menos una etiqueta: ",
+              len(nodos_descargados))
+        mostrar_nodos_descargados(nodos_descargados)
+    return nodos_descargados
+
+
+def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float, lon: float,
+                           rango=args.rango, debug=False) -> [overpy.Node]:
+    """
+    Recorre la lista de nodos_totales descargados de OSM y selecciona aquellos
+    que se encuentren dentro de la circunferencia con centro en lat y lon, con
+    radio rango.
+    """
+
+    nodos_en_rango = []
+
+    for nodo in nodos_totales:
+        distancia = geodesic((lat, lon), (nodo.lat, nodo.lon)).meters
+        if distancia <= rango:
+            nodos_en_rango += [nodo]
+    if debug:
+        print("Número de nodos en rango: ", len(nodos_en_rango))
+    return nodos_en_rango
 
 
 def mostrar_nodos_descargados(nodos_descargados: [overpy.Node],
@@ -70,8 +120,8 @@ def mostrar_nodos_descargados(nodos_descargados: [overpy.Node],
     debug_preambulo = "DEBUG (mostrar_nodos_descargados): "
     url = "https://osm.org/node/"
     print('{0} Se descargaron {1} nodos.'.
-          format(debug_preambulo, len(nodos_descargados.nodes)))
-    for nodo in nodos_descargados.nodes:
+          format(debug_preambulo, len(nodos_descargados)))
+    for nodo in nodos_descargados:
         print('{:>10}{}'.format(url, nodo.id))
         if mostrar_etiquetas:
             for llave, valor in nodo.tags.items():
@@ -202,6 +252,10 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
     gpx = gpxpy.parse(archivo_gpx)
     archivo_gpx.close()
 
+    # obtiene todos los nodos en el área trazada
+    cuadro = obtener_cuadro_delimitador_de_gpx(gpx, debug)
+    nodos_totales = descargar_nodos_en_cuadro_delimitador(cuadro, debug)
+
     for waypoint in gpx.waypoints:
 
         # Obtener los atributos del waypoint
@@ -210,7 +264,8 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
         nombre = waypoint.name
 
         # Mostrar informacion del waypoint
-        nodos_cercanos = descargar_nodos_en_rango(latitud, longitud, debug)
+        nodos_cercanos = obtener_nodos_en_rango(nodos_totales, latitud,
+                                                longitud, debug)
         imprimir_encabezado_waypoint(nombre, latitud, longitud)
 
         # Se asume que las etiquetas del waypoint no se encuentran en OSM
@@ -219,7 +274,7 @@ def analizar_traza(ruta_gpx: str, debug=False) -> None:
         # Si no hay etiquetas en el esquema con ese nombre se omite
         etiquetas_esquema = esquema.get(nombre)
         if etiquetas_esquema is not None:
-            for nodo in nodos_cercanos.nodes:
+            for nodo in nodos_cercanos:
                 etiquetas_osm = nodo.tags
                 resultado = analizar_etiquetas(
                     etiquetas_osm, etiquetas_esquema, debug)

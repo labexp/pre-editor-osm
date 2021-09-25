@@ -1,12 +1,13 @@
-# Pre Editor OSM 
+# Pre Editor OSM
 
 ### Descripción     
-Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existe en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa. 
+Este proyecto tiene como objetivo validar los datos de un GPX para devolver un informe que indique si la información existente en OSM está correcta, debe ser actualizada o no existe. A esta validación le llamamos pre edición, siendo que es un apoyo previo al proceso de editar el mapa.
 
 **Bibliotecas utilizadas**
 
 * [gpxpy](https://pypi.org/project/gpxpy/) para la extracción de puntos del gpx.
 * [overpy](https://github.com/DinoTools/python-overpy)  para descargar nodos desde OSM.
+* [geopy](https://github.com/geopy/geopy) para calcula la distancia entre ubicaciones.
 
 **Requerimientos y ejecución**
 

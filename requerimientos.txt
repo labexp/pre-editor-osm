@@ -1,2 +1,3 @@
 gpxpy==1.4.2
 overpy>=0.4
+geopy>=2.2.0
