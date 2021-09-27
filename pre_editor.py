@@ -41,7 +41,8 @@ def parsear_esquema() -> dict:
     return esquema_parseado
 
 
-def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX) -> Tuple[float, ...]:
+def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX) ->  \
+                                      Tuple[float, float, float, float]:
     """
     Calcula las coordenadas del cuadro delimitador (`bbox`) más pequeño capaz
     de contener los puntos de referencia de la traza (`waypoints`). El orden de
@@ -76,7 +77,7 @@ def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX) -> Tuple[float, ...]:
 
 
 def descargar_nodos_en_cuadro_delimitador(
-        cuadro:  Tuple[float, ...]) -> [overpy.Node]:
+        cuadro:  Tuple[float, float, float, float]) -> [overpy.Node]:
     """
     Descarga todos los nodos con al menos una etiqueta ubicados dentro de las
     coordenadas del cuadro delimitador.
@@ -110,26 +111,25 @@ def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float,
     return nodos_en_rango
 
 
-def almacenar_nodos(nodos: [overpy.Node]) -> None:
+def almacenar_nodos(nodos: [overpy.Node], nombre_archivo=RUTA_ARCHIVO_NODOS) -> None:
     """
-    De una lista con nodos tipo overpy.Node,
-    almacena cada uno de los nodos en un archivo binario.
+    Almacena una lista de nodos overpy.Node en un archivo binario
     """
 
-    with open(RUTA_ARCHIVO_NODOS, 'wb') as archivo:
+    with open(nombre_archivo, 'wb') as archivo:
         pickle.dump(nodos, archivo, pickle.HIGHEST_PROTOCOL)
         if debug:
             print("Los nodos fueron guardados en el archivo binario")
     archivo.close()
 
 
-def leer_nodos_en_archivo() -> list:
+def leer_nodos_en_archivo(nombre_archivo=RUTA_ARCHIVO_NODOS) -> [overpy.Node]:
     """
      Construye una lista de objetos overpy.Node a
      partir de los datos existentes en un archivo.
     """
 
-    with open(RUTA_ARCHIVO_NODOS, 'rb') as archivo:
+    with open(nombre_archivo, 'rb') as archivo:
         nodos = pickle.load(archivo)
         if debug:
             print("Los nodos del archivo binario fueron leidos")
@@ -266,7 +266,7 @@ def imprimir_resultado(resultado: (callable, dict), id: int,
     funcion_imprimir(argumentos_imprimir)
 
 
-def analizar_traza(ruta_gpx: str) -> None:
+def analizar_traza(ruta_gpx: str, almacenar=False) -> None:
     """
     Recibe una ruta a un archivo GPX el cual cada uno de sus
     waypoints debe ser analizado.
@@ -289,7 +289,8 @@ def analizar_traza(ruta_gpx: str) -> None:
     # nodos_totales = leer_nodos_en_archivo()
     cuadro = obtener_cuadro_delimitador_de_gpx(gpx)
     nodos_totales = descargar_nodos_en_cuadro_delimitador(cuadro)
-    almacenar_nodos(nodos_totales)
+    if almacenar:
+        almacenar_nodos(nodos_totales)
 
     for waypoint in gpx.waypoints:
 
