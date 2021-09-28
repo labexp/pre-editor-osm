@@ -46,8 +46,8 @@ def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX) ->  \
     """
     Calcula las coordenadas del cuadro delimitador (`bbox`) más pequeño capaz
     de contener los puntos de referencia de la traza (`waypoints`). El orden de
-    las coordenadas del cuadro delimitador es el utilizado por Overpass, el cual
-    es:
+    las coordenadas del cuadro delimitador es el utilizado por Overpass,
+    el cual es:
     (latitud inferior, longitud inferior, latitud superior, longitud superior)
     """
     # índices constantes
@@ -55,7 +55,8 @@ def obtener_cuadro_delimitador_de_gpx(gpx: gpxpy.gpx.GPX) ->  \
     LATITUD_SUPERIOR, LONGITUD_SUPERIOR = 2, 3
 
     lat, lon = gpx.waypoints[0].latitude, gpx.waypoints[0].longitude
-    # [latitud inferior, longitud inferior, latitud superior, longitud superior]
+    # [latitud inferior, longitud inferior,
+    # latitud superior, longitud superior]
     cuadro = [lat, lon, lat, lon]
 
     # revisa los puntos de cada punto de refrencia
@@ -111,7 +112,8 @@ def obtener_nodos_en_rango(nodos_totales: [overpy.Node], lat: float,
     return nodos_en_rango
 
 
-def almacenar_nodos(nodos: [overpy.Node], nombre_archivo=RUTA_ARCHIVO_NODOS) -> None:
+def almacenar_nodos(nodos: [overpy.Node],
+                    nombre_archivo=RUTA_ARCHIVO_NODOS) -> None:
     """
     Almacena una lista de nodos overpy.Node en un archivo binario
     """
@@ -119,8 +121,8 @@ def almacenar_nodos(nodos: [overpy.Node], nombre_archivo=RUTA_ARCHIVO_NODOS) -> 
     with open(nombre_archivo, 'wb') as archivo:
         pickle.dump(nodos, archivo, pickle.HIGHEST_PROTOCOL)
         if debug:
-            print("Los nodos fueron guardados en el archivo binario")
-    archivo.close()
+            print(f"Los nodos fueron guardados en el archivo {nombre_archivo}")
+            archivo.close()
 
 
 def leer_nodos_en_archivo(nombre_archivo=RUTA_ARCHIVO_NODOS) -> [overpy.Node]:
@@ -132,7 +134,7 @@ def leer_nodos_en_archivo(nombre_archivo=RUTA_ARCHIVO_NODOS) -> [overpy.Node]:
     with open(nombre_archivo, 'rb') as archivo:
         nodos = pickle.load(archivo)
         if debug:
-            print("Los nodos del archivo binario fueron leidos")
+            print(f"Los nodos del archivo {nombre_archivo} fueron leidos")
     archivo.close()
     return nodos
 
