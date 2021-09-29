@@ -122,7 +122,7 @@ def almacenar_nodos(nodos: [overpy.Node],
         pickle.dump(nodos, archivo, pickle.HIGHEST_PROTOCOL)
         if debug:
             print(f"Los nodos fueron guardados en el archivo {nombre_archivo}")
-            archivo.close()
+    archivo.close()
 
 
 def leer_nodos_en_archivo(nombre_archivo=RUTA_ARCHIVO_NODOS) -> [overpy.Node]:
